@@ -83,7 +83,8 @@ class DocumentController extends Controller
 
             // Generate a unique filename to prevent overwrites
             $fileName = time() . '_' . str_replace(' ', '_', $originalName);
-            $filePath = $file->storeAs('documents', $fileName, 'public');
+            $file->move(public_path('documents'), $fileName);
+            $filePath = 'documents/' . $fileName;
 
             // Create document record
             Document::create([
@@ -120,21 +121,21 @@ class DocumentController extends Controller
     // }
 
        public function download($id)
-{
-    $document = Document::findOrFail($id);
+        {
+            $document = Document::findOrFail($id);
+        
+            if (!Storage::disk('public')->exists($document->file_path)) {
+                abort(404, 'File not found');
+            }
 
-    if (!Storage::disk('public')->exists($document->file_path)) {
-        abort(404, 'File not found');
-    }
-
-    return Storage::disk('public')->download(
-        $document->file_path,
-        $document->file_name,
-        [
-            'Content-Type' => Storage::disk('public')->mimeType($document->file_path),
-        ]
-    );
-}
+            return Storage::disk('public')->download(
+                $document->file_path,
+                $document->file_name,
+                [
+                        'Content-Type' => Storage::disk('public')->mimeType($document->file_path),
+                    ]
+                );
+            }
 
 
 
