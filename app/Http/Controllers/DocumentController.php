@@ -116,7 +116,10 @@ class DocumentController extends Controller
                 ->with('error', 'File not found.');
         }
 
-        return Storage::disk('public')->download($document->file_path, $document->file_name);
+        return response()->download(
+            storage_path('app/public/' . $document->file_path),
+            $document->file_name
+        );
     }
 
     /**
