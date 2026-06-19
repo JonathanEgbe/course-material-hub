@@ -8,12 +8,10 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-});
 
-export default {
   server: {
     host: true,
     port: 5173,
     allowedHosts: "all"
   }
-};
+});
