@@ -120,35 +120,50 @@ class DocumentController extends Controller
     //     return Storage::disk('public')->download($document->file_path, $document->file_name);
     // }
 
-       public function download($id)
-        {
-            $document = Document::findOrFail($id);
-        
-            if (!Storage::disk('public')->exists($document->file_path)) {
-                abort(404, 'File not found');
-            }
+      public function download($id)
+{
+    $document = Document::findOrFail($id);
 
-            return Storage::disk('public')->download(
-                $document->file_path,
-                $document->file_name,
-                [
-                        'Content-Type' => Storage::disk('public')->mimeType($document->file_path),
-                    ]
-                );
-            }
+    $path = public_path($document->file_path);
+
+    if (!file_exists($path)) {
+        abort(404, 'File not found');
+    }
+
+    return response()->download($path, $document->file_name);
+}
 
 
 
     /**
      * Remove the specified document from storage and database.
      */
+//     public function destroy($id)
+//     {
+//         $document = Document::findOrFail($id);
+
+//         // Delete file from storage
+//         if (Storage::disk('public')->exists($document->file_path)) {
+//             Storage::disk('public')->delete($document->file_path);
+//         }
+
+//         // Delete database record
+//         $document->delete();
+
+//         return redirect()->route('documents.index')
+//             ->with('success', 'Document deleted successfully!');
+//     }
+// }
+
     public function destroy($id)
     {
         $document = Document::findOrFail($id);
 
+        $path = public_path($document->file_path);
+
         // Delete file from storage
-        if (Storage::disk('public')->exists($document->file_path)) {
-            Storage::disk('public')->delete($document->file_path);
+        if (file_exists($path)) {
+            unlink($path);
         }
 
         // Delete database record
