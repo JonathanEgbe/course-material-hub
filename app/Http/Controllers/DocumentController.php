@@ -107,18 +107,35 @@ class DocumentController extends Controller
     /**
      * Download the specified document.
      */
+    // public function download($id)
+    // {
+    //     $document = Document::findOrFail($id);
+
+    //     if (!Storage::disk('public')->exists($document->file_path)) {
+    //         return redirect()->route('documents.index')
+    //             ->with('error', 'File not found.');
+    //     }
+
+    //     return Storage::disk('public')->download($document->file_path, $document->file_name);
+    // }
+
     public function download($id)
-    {
-        $document = Document::findOrFail($id);
+{
+    $document = Document::findOrFail($id);
 
-        if (!Storage::disk('public')->exists($document->file_path)) {
-            return redirect()->route('documents.index')
-                ->with('error', 'File not found.');
-        }
+    $path = storage_path('app/public/' . $document->file_path);
 
-        return Storage::disk('public')->download($document->file_path, $document->file_name);
+    if (!file_exists($path)) {
+        abort(404, 'File not found');
     }
 
+    return response()->download($path, $document->original_name ?? basename($path), [
+        'Content-Type' => mime_content_type($path),
+    ]);
+    }
+
+
+    
     /**
      * Remove the specified document from storage and database.
      */
